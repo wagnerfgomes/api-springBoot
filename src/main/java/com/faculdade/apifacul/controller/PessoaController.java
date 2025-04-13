@@ -10,12 +10,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/pessoa")
 public class PessoaController {
 
-    private PessoaRepository pessoaRepository;
+    private final PessoaRepository pessoaRepository;
 
     @Autowired
     public PessoaController(PessoaRepository pessoaRepository) {
@@ -29,10 +31,19 @@ public class PessoaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(pessoaRepository.save(pessoa));
     }
 
-    @GetMapping
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> getPessoa(@PathVariable UUID id) {
+        Optional<Pessoa> pessoaOptional = pessoaRepository.findById(id);
+        if (pessoaOptional.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Pessoa não encontrada!!");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(pessoaOptional.get());
+    }
+
+    @GetMapping("/all")
     public ResponseEntity<List<Pessoa>> getAllPessoas() {
         List<Pessoa> pessoas = pessoaRepository.findAll();
-        return ResponseEntity.ok(pessoas);
+        return ResponseEntity.status(HttpStatus.OK).body(pessoas);
     }
 
 
